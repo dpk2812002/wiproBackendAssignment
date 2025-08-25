@@ -1,0 +1,5 @@
+package com.smartcity.tripservice.controller;
+
+public class TripController {
+
+}

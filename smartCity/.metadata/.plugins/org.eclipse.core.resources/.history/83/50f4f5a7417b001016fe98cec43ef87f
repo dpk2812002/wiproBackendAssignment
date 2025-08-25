@@ -1,0 +1,5 @@
+package com.smartcity.routeservice.repository;
+
+public interface RouteStopRepository extends JpaRepository<RouteStop, RouteStopId> {
+    List<RouteStop> findByRouteIdOrderBySequenceAsc(String routeId);
+}

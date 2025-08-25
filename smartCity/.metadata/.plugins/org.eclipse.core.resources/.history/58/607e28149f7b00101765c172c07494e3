@@ -1,0 +1,5 @@
+package com.smartcity.user.repo;
+
+public class UserRepository {
+
+}

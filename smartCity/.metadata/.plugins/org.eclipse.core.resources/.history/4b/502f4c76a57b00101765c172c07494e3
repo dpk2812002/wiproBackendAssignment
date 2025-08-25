@@ -1,0 +1,5 @@
+package com.smartcity.ticketing.repo;
+
+public class TicketRepository {
+
+}

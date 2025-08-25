@@ -1,0 +1,14 @@
+package com.smartcity.vehicletracking.dto;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TelemetryRequest {
+    private String telemetryId;
+    private double lat;
+    private double lon;
+    private long timestamp;
+}

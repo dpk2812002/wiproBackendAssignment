@@ -1,0 +1,27 @@
+package com.smartcity.vehicletracking.dto;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TelemetryRequest {
+    private String telemetryId;
+    private double lat;
+    private double lon;
+    private long timestamp;
+    
+ // getters and setters
+    public String getTelemetryId() { return telemetryId; }
+    public void setTelemetryId(String telemetryId) { this.telemetryId = telemetryId; }
+
+    public double getLat() { return lat; }
+    public void setLat(double lat) { this.lat = lat; }
+
+    public double getLon() { return lon; }
+    public void setLon(double lon) { this.lon = lon; }
+
+    public long getTimestamp() { return timestamp; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+}

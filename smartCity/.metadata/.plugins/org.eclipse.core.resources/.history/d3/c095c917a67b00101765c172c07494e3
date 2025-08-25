@@ -1,0 +1,5 @@
+package com.smartcity.ticketing.web;
+
+public class TicketController {
+
+}

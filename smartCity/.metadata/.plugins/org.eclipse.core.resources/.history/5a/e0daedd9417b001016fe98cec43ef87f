@@ -1,0 +1,5 @@
+package com.smartcity.routeservice.controller;
+
+public class RouteController {
+
+}

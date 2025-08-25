@@ -1,0 +1,5 @@
+package com.smartcity.agency.service;
+
+public class AgencyServiceImpl {
+
+}

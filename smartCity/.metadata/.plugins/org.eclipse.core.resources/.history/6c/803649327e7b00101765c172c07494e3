@@ -1,0 +1,21 @@
+package com.smartcity.vehicletracking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.util.Map;
+
+@Entity @Table(name = "vehicle")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class Vehicle {
+  @Id
+  private String id;                     // e.g., "veh_123" (we use string id from telemetry)
+  private String fleetCode;
+  private String routeId;
+  private Integer capacity;
+
+  @JdbcTypeCode(SqlTypes.JSON)
+  @Column(columnDefinition = "json")
+  private Map<String, Object> features;  // optional
+}

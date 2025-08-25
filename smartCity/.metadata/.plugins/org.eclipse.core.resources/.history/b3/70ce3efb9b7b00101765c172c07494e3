@@ -1,0 +1,5 @@
+package com.smartcity.gateway.security;
+
+public class JwtFilter {
+
+}

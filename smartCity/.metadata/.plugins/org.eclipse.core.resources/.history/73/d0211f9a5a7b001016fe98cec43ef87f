@@ -1,0 +1,5 @@
+package com.smartcity.tripservice.service;
+
+public class TripService {
+
+}

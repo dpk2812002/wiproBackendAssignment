@@ -1,0 +1,5 @@
+package com.smartcity.user.model;
+
+public class User {
+
+}

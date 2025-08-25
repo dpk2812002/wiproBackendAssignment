@@ -1,0 +1,47 @@
+package com.smartcity.vehicletracking.service;
+
+import com.smartcity.vehicletracking.model.*;
+import com.smartcity.vehicletracking.repository.*;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+
+@Service
+public class VehicleTrackingService {
+
+    private final VehicleRepository vehicleRepository;
+    private final VehicleStatusRepository vehicleStatusRepository;
+    private final VehiclePositionRepository vehiclePositionRepository;
+
+    public VehicleTrackingService(VehicleRepository vehicleRepository,
+                                  VehicleStatusRepository vehicleStatusRepository,
+                                  VehiclePositionRepository vehiclePositionRepository) {
+        this.vehicleRepository = vehicleRepository;
+        this.vehicleStatusRepository = vehicleStatusRepository;
+        this.vehiclePositionRepository = vehiclePositionRepository;
+    }
+
+    public void processTelemetry(String telemetryId, String statusStr, double lat, double lon) {
+        // Create Vehicle
+        Vehicle vehicle = new Vehicle();
+        vehicle.setId(telemetryId);
+
+        // Create VehicleStatus
+        VehicleStatus status = new VehicleStatus();
+        status.setStatus(statusStr);
+        status.setDetails("Updated via telemetry");
+        vehicle.setStatus(status);
+
+        // Save status & vehicle
+        vehicleStatusRepository.save(status);
+        vehicleRepository.save(vehicle);
+
+        // Create VehiclePosition
+        VehiclePosition position = new VehiclePosition();
+        position.setLat(lat);
+        position.setLon(lon);
+        position.setTimestamp(LocalDateTime.now());
+        position.setVehicle(vehicle);
+
+        vehiclePositionRepository.save(position);
+    }
+}

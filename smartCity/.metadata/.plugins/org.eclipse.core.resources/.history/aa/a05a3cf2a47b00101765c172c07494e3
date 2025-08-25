@@ -1,0 +1,17 @@
+package com.smartcity.ticketing.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.Instant;
+
+@Document("ticket")
+public class Ticket {
+  @Id private String id;
+  private String userId;
+  private String routeId;
+  private Instant issuedAt;
+  private Double fare;
+  private String currency;
+  private String status; // purchased, used, refunded
+  // + getters/setters
+}

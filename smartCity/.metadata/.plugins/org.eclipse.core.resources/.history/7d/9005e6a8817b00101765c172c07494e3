@@ -1,0 +1,19 @@
+package com.smartcity.vehicletracking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Vehicle {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;   // telemetryId or vehicleId
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private VehicleStatus status;
+}

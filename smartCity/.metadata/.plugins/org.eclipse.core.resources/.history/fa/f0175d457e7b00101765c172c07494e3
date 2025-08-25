@@ -1,0 +1,19 @@
+package com.smartcity.vehicletracking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.Instant;
+
+@Entity @Table(name="vehicle_status")
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class VehicleStatus {
+  @Id
+  private String vehicleId;                 // same as Vehicle.id (one row per vehicle)
+
+  private Instant lastSeenTs;
+
+  @Enumerated(EnumType.STRING)
+  private VehicleState state;
+
+  private Integer delaySec;                 // null or >=0
+}

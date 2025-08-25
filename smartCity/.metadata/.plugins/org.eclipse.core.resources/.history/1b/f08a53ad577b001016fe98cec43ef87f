@@ -1,0 +1,5 @@
+package com.smartcity.agency.repository;
+
+public class AgencyRepository {
+
+}

@@ -1,0 +1,17 @@
+package com.smartcity.vehicletracking.dto;
+
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import java.time.Instant;
+
+@Data
+public class TelemetryRequest {
+  @NotBlank private String vehicleId;
+  @NotNull  private Instant ts;
+  @NotNull  private Double lat;
+  @NotNull  private Double lon;
+  private Double speed;
+  private Integer heading;
+  private Double accuracyM;
+  private String routeId;       // optional (if device knows current route)
+}

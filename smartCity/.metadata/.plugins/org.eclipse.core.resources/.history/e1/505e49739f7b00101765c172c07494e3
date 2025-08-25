@@ -1,0 +1,5 @@
+package com.smartcity.user.web;
+
+public class UserController {
+
+}

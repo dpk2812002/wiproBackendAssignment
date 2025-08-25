@@ -1,0 +1,5 @@
+package com.smartcity.vehicletracking.event;
+
+public class DelayDetectedEvent {
+
+}

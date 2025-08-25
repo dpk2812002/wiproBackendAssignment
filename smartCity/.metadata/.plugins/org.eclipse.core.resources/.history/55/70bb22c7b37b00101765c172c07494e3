@@ -1,0 +1,5 @@
+package com.smartcity.notification.service;
+
+public class NotificationService {
+
+}

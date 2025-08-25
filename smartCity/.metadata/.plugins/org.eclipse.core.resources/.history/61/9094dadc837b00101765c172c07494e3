@@ -1,0 +1,23 @@
+package com.smartcity.vehicletracking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class VehiclePosition {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private double lat;
+    private double lon;
+    private long timestamp;
+
+    @ManyToOne
+    private Vehicle vehicle;
+}

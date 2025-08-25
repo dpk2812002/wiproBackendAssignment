@@ -1,0 +1,46 @@
+package com.smartcity.vehicletracking.service;
+
+import com.smartcity.vehicletracking.dto.TelemetryRequest;
+import com.smartcity.vehicletracking.model.*;
+import com.smartcity.vehicletracking.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class VehicleTrackingService {
+
+    private final VehicleRepository vehicleRepository;
+    private final VehiclePositionRepository positionRepository;
+    private final VehicleStatusRepository statusRepository;
+
+    public VehiclePosition processTelemetry(TelemetryRequest req) {
+        // Find vehicle
+        Vehicle vehicle = vehicleRepository.findById(req.getTelemetryId())
+                .orElseGet(() -> {
+                    Vehicle newVehicle = Vehicle.builder().id(req.getTelemetryId()).build();
+                    return vehicleRepository.save(newVehicle);
+                });
+
+        // Create new position
+        VehiclePosition position = VehiclePosition.builder()
+                .vehicle(vehicle)
+                .lat(req.getLat())
+                .lon(req.getLon())
+                .timestamp(req.getTimestamp())
+                .build();
+        positionRepository.save(position);
+
+        // Update status
+        VehicleStatus status = VehicleStatus.builder()
+                .status("ACTIVE")
+                .details("Telemetry received at " + req.getTimestamp())
+                .build();
+        statusRepository.save(status);
+
+        vehicle.setStatus(status);
+        vehicleRepository.save(vehicle);
+
+        return position;
+    }
+}

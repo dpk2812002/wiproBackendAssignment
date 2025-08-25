@@ -1,0 +1,4 @@
+package com.smartcity.routeservice.repository;
+
+public interface StopRepository extends JpaRepository<Stop, String> {
+}

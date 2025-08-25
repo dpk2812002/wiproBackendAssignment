@@ -1,0 +1,29 @@
+package com.smartcity.vehicletracking.controller;
+
+import com.smartcity.vehicletracking.dto.PositionResponse;
+import com.smartcity.vehicletracking.dto.TelemetryRequest;
+import com.smartcity.vehicletracking.service.VehicleTrackingService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping
+@RequiredArgsConstructor
+public class VehicleController {
+
+  private final VehicleTrackingService service;
+
+  @PostMapping("/telemetry")
+  public ResponseEntity<Void> ingest(@Valid @RequestBody TelemetryRequest req) {
+    service.ingestTelemetry(req);
+    return ResponseEntity.accepted().build();
+  }
+
+  @GetMapping("/vehicles/{id}/position")
+  public ResponseEntity<PositionResponse> latest(@PathVariable("id") String vehicleId) {
+    PositionResponse resp = service.latestPosition(vehicleId);
+    return resp == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(resp);
+  }
+}

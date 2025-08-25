@@ -1,0 +1,5 @@
+package com.smartcity.routeservice.repository;
+
+public interface StopRepository {
+
+}

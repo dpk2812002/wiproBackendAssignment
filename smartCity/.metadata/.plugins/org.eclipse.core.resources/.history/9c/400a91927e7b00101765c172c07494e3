@@ -1,0 +1,111 @@
+package com.smartcity.vehicletracking.service;
+
+import java.time.Duration;
+import java.time.Instant;
+
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.smartcity.vehicletracking.dto.PositionResponse;
+import com.smartcity.vehicletracking.dto.TelemetryRequest;
+import com.smartcity.vehicletracking.event.DelayDetectedEvent;
+import com.smartcity.vehicletracking.event.VehiclePositionEvent;
+import com.smartcity.vehicletracking.kafka.KafkaTopics;
+import com.smartcity.vehicletracking.model.Vehicle;
+import com.smartcity.vehicletracking.model.VehiclePosition;
+import com.smartcity.vehicletracking.model.VehicleState;
+import com.smartcity.vehicletracking.model.VehicleStatus;
+import com.smartcity.vehicletracking.repository.VehiclePositionRepository;
+import com.smartcity.vehicletracking.repository.VehicleRepository;
+import com.smartcity.vehicletracking.repository.VehicleStatusRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class VehicleTrackingService {
+
+  private final VehicleRepository vehicleRepo;
+  private final VehiclePositionRepository positionRepo;
+  private final VehicleStatusRepository statusRepo;
+  private final KafkaTemplate<String, Object> kafka;
+
+  @Transactional
+  public void ingestTelemetry(TelemetryRequest req) {
+    // Upsert vehicle (so you can test without preloading data)
+    Vehicle vehicle = vehicleRepo.findById(req.getVehicleId())
+        .orElseGet(() -> vehicleRepo.save(
+            Vehicle.builder().id(req.getVehicleId()).routeId(req.getRouteId()).build()));
+
+    if (req.getRouteId() != null) {
+      vehicle.setRouteId(req.getRouteId());
+    }
+
+    // Save position
+    var pos = positionRepo.save(VehiclePosition.builder()
+        .vehicle(vehicle)
+        .ts(req.getTs())
+        .lat(req.getLat())
+        .lon(req.getLon())
+        .speed(req.getSpeed())
+        .heading(req.getHeading())
+        .accuracyM(req.getAccuracyM())
+        .build());
+
+    // Update status + simple "delay" heuristic: if no update for >3 minutes
+    VehicleStatus status = statusRepo.findById(vehicle.getId())
+        .orElse(VehicleStatus.builder()
+            .vehicleId(vehicle.getId())
+            .state(VehicleState.IN_SERVICE)
+            .delaySec(0)
+            .build());
+
+    Integer previousDelay = status.getDelaySec() == null ? 0 : status.getDelaySec();
+    Instant prevTs = status.getLastSeenTs();
+
+    status.setLastSeenTs(req.getTs());
+    status.setState(VehicleState.IN_SERVICE);
+    status.setDelaySec(0);
+
+    if (prevTs != null) {
+      long gap = Duration.between(prevTs, req.getTs()).getSeconds();
+      if (gap > 180) { // > 3 minutes since last update → treat as delayed
+        status.setState(VehicleState.DELAYED);
+        status.setDelaySec((int) gap);
+        // Fire "delay-detected" only when we newly cross delay condition
+        if (previousDelay == 0) {
+          kafka.send(KafkaTopics.VEHICLE_DELAY_DETECTED_V1, vehicle.getRouteId(),
+              DelayDetectedEvent.builder()
+                  .vehicleId(vehicle.getId())
+                  .routeId(vehicle.getRouteId())
+                  .delaySec((int) gap)
+                  .basedOn("interval")
+                  .ts(Instant.now())
+                  .build());
+        }
+      }
+    }
+    statusRepo.save(status);
+
+    // Publish position event
+    kafka.send(KafkaTopics.VEHICLE_POSITION_V1, vehicle.getId(),
+        VehiclePositionEvent.builder()
+            .vehicleId(vehicle.getId())
+            .routeId(vehicle.getRouteId())
+            .ts(pos.getTs())
+            .lat(pos.getLat())
+            .lon(pos.getLon())
+            .speed(pos.getSpeed())
+            .heading(pos.getHeading())
+            .build());
+  }
+
+  @Transactional(readOnly = true)
+  public PositionResponse latestPosition(String vehicleId) {
+    var opt = positionRepo.findTopByVehicle_IdOrderByTsDesc(vehicleId);
+    return opt.map(p -> new PositionResponse(
+        vehicleId, p.getTs(), p.getLat(), p.getLon(), p.getSpeed(), p.getHeading(), p.getAccuracyM()
+    )).orElse(null);
+  }
+}

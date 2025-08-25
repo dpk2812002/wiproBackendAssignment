@@ -1,0 +1,17 @@
+package com.smartcity.ticketing.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.Instant;
+import java.util.Set;
+
+@Document("pass")
+public class Pass {
+  @Id private String id;
+  private String userId;
+  private String type; // single, day, monthly
+  private Instant validFrom;
+  private Instant validTo;
+  private Set<String> zones;
+  // + getters/setters (or use Lombok @Data)
+}

@@ -1,0 +1,29 @@
+package com.smartcity.vehicletracking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.Instant;
+
+@Entity
+@Table(name = "vehicle_position",
+       indexes = {
+         @Index(name="idx_vp_vehicle_ts", columnList = "vehicle_id, ts"),
+         @Index(name="idx_vp_ts", columnList = "ts")
+       })
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class VehiclePosition {
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "vehicle_id", nullable = false)
+  @ToString.Exclude
+  private Vehicle vehicle;
+
+  private Instant ts;
+  private double lat;
+  private double lon;
+  private Double speed;
+  private Integer heading;
+  private Double accuracyM;
+}

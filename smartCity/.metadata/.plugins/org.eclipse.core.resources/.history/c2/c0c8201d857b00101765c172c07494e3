@@ -1,0 +1,26 @@
+package com.smartcity.vehicletracking.controller;
+
+import com.smartcity.vehicletracking.dto.TelemetryRequest;
+import com.smartcity.vehicletracking.model.VehiclePosition;
+import com.smartcity.vehicletracking.service.VehicleTrackingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/vehicles")
+public class VehicleController {
+
+    private final VehicleTrackingService trackingService;
+
+    @Autowired
+    public VehicleController(VehicleTrackingService trackingService) {
+        this.trackingService = trackingService;
+    }
+
+    @PostMapping("/telemetry")
+    public ResponseEntity<String> receiveTelemetry(@RequestBody TelemetryRequest request) {
+        vehicleTrackingService.processTelemetry(request);
+        return ResponseEntity.ok("Telemetry processed successfully");
+    }
+
+}

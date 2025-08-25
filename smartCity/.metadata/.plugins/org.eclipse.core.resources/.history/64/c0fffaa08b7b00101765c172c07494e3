@@ -1,0 +1,45 @@
+package com.smartcity.vehicletracking.service;
+
+import com.smartcity.vehicletracking.dto.TelemetryRequest;
+import com.smartcity.vehicletracking.model.Vehicle;
+import com.smartcity.vehicletracking.model.VehiclePosition;
+import com.smartcity.vehicletracking.model.VehicleStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class VehicleTrackingService {
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    public VehicleTrackingService(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public VehiclePosition processTelemetry(TelemetryRequest request) {
+        Vehicle vehicle = new Vehicle("1", "Car");
+        VehicleStatus status = new VehicleStatus("1", "ACTIVE", "OK");
+
+        VehiclePosition position = new VehiclePosition(
+                request.getTelemetryId(),
+                request.getLat(),
+                request.getLon(),
+                request.getTimestamp(),
+                vehicle
+        );
+
+        // Publish telemetry to Kafka topic
+        String message = "VehicleId=" + vehicle.getId() +
+                ", lat=" + request.getLat() +
+                ", lon=" + request.getLon() +
+                ", ts=" + request.getTimestamp();
+
+        kafkaTemplate.send("vehicle-telemetry", message);
+
+        return position;
+    }
+}

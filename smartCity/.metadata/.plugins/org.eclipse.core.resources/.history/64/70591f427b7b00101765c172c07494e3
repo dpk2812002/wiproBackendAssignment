@@ -1,0 +1,5 @@
+package com.smartcity.vehicletracking.dto;
+
+public class PositionResponse {
+
+}

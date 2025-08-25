@@ -1,0 +1,16 @@
+package com.smartcity.vehicletracking.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+@Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Vehicle {
+    @Id
+    private String id;
+
+    @OneToOne
+    private VehicleStatus status;
+}

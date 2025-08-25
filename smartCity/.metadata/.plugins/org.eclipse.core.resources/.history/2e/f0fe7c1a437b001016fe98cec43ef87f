@@ -1,0 +1,21 @@
+package com.smartcity.routeservice.model;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Stop {
+    @Id
+    private String id;
+
+    private String name;
+
+    private double lat;
+
+    private double lon;
+
+    private String code;
+}

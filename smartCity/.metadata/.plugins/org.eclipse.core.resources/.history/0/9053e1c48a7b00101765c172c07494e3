@@ -1,0 +1,66 @@
+package com.smartcity.vehicletracking.service;
+
+import com.smartcity.vehicletracking.model.Vehicle;
+import com.smartcity.vehicletracking.model.VehiclePosition;
+import com.smartcity.vehicletracking.model.VehicleStatus;
+import com.smartcity.vehicletracking.dto.TelemetryRequest;
+import com.smartcity.vehicletracking.repository.VehicleRepository;
+import com.smartcity.vehicletracking.repository.VehiclePositionRepository;
+import com.smartcity.vehicletracking.repository.VehicleStatusRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class VehicleTrackingService {
+
+    private final VehicleRepository vehicleRepository;
+    private final VehiclePositionRepository vehiclePositionRepository;
+    private final VehicleStatusRepository vehicleStatusRepository;
+
+    @Autowired
+    public VehicleTrackingService(
+            VehicleRepository vehicleRepository,
+            VehiclePositionRepository vehiclePositionRepository,
+            VehicleStatusRepository vehicleStatusRepository) {
+        this.vehicleRepository = vehicleRepository;
+        this.vehiclePositionRepository = vehiclePositionRepository;
+        this.vehicleStatusRepository = vehicleStatusRepository;
+    }
+
+    public void processTelemetry(TelemetryRequest telemetry) {
+        // 1. Find or create the vehicle
+        Optional<Vehicle> vehicleOpt = vehicleRepository.findById(telemetry.getTelemetryId());
+        Vehicle vehicle;
+        if (vehicleOpt.isPresent()) {
+            vehicle = vehicleOpt.get();
+        } else {
+            vehicle = new Vehicle();
+            vehicle.setId(telemetry.getTelemetryId());
+            vehicleRepository.save(vehicle);
+        }
+
+        // 2. Save vehicle position
+        VehiclePosition position = new VehiclePosition(
+                null,
+                telemetry.getLat(),
+                telemetry.getLon(),
+                telemetry.getTimestamp(),
+                vehicle
+        );
+        vehiclePositionRepository.save(position);
+
+        // 3. Save vehicle status
+        VehicleStatus status = new VehicleStatus(
+                null,
+                "ACTIVE",   // you can replace with telemetry.getStatus() if available
+                "Updated via telemetry"
+        );
+        vehicleStatusRepository.save(status);
+
+        // 4. Update vehicle with latest status
+        vehicle.setStatus(status);
+        vehicleRepository.save(vehicle);
+    }
+}
